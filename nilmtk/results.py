@@ -74,7 +74,8 @@ class Results(object):
         row['end'] = timeframe.end
         for key, val in new_results.items():
             row[key] = val
-        self._data = pd.concat([self._data, row], verify_integrity=True, sort=False)
+        self._data = pd.concat([df for df in [self._data, row] if not df.empty], verify_integrity=True, sort=False)
+        #self._data = pd.concat([self._data, row], verify_integrity=True, sort=False)
         self._data.sort_index(inplace=True)
 
     def check_for_overlap(self):
@@ -105,7 +106,7 @@ class Results(object):
         if new_result._data.empty:
             return
 
-        self._data = pd.concat([self._data, new_result._data], sort=False)
+        self._data = pd.concat([df for df in [self._data, new_result._data] if not df.empty], sort=False)
         self._data.sort_index(inplace=True)
         self.check_for_overlap()
 
@@ -184,7 +185,10 @@ class Results(object):
         timezones (e.g. Europe/London across a daylight saving
         boundary).
         """
-        return self._data.apply(pd.to_numeric, errors='ignore')
+        try:
+            return self._data.apply(pd.to_numeric)
+        except:
+            return self._data
 
     def timeframes(self):
         """Returns a list of timeframes covered by this Result."""

@@ -39,5 +39,8 @@ class TotalEnergyResults(Results):
         return self.combined()
 
     def export_to_cache(self):
-        return self._data.fillna(0).apply(pd.to_numeric, errors='ignore')
+        try:
+            return self._data.fillna(0).apply(pd.to_numeric)
+        except:
+            return self._data.fillna(0)
                 
